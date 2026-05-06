@@ -93,6 +93,10 @@ CREATE POLICY "students_read_sessions" ON public.sessions FOR SELECT USING (true
 CREATE POLICY "students_read_materials" ON public.materials FOR SELECT USING (true);
 CREATE POLICY "students_read_own_attendance" ON public.attendance FOR SELECT USING (student_id = (SELECT student_id FROM public.users WHERE id = auth.uid()));
 
+-- Users table policies
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "users_read_all" ON public.users FOR SELECT USING (true);
+
 -- Auth Trigger
 CREATE OR REPLACE FUNCTION public.handle_new_student() 
 RETURNS TRIGGER AS $$

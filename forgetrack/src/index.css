@@ -1,168 +1,208 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 @theme {
-  --color-darkbase: #0a0a0b;
-  --color-darkcard: #151517;
-  --color-amethyst: #a855f7;
-  --color-amethyst-hover: #c084fc;
+  --color-darkbase: #F5F0E8;
+  --color-darkcard: #FFFFFF;
+  --color-amethyst: #FF3B00;
+  --color-amethyst-hover: #CC2F00;
 }
-:root {
-  /* Canvas & Surfaces - Slate 900/800 aesthetic */
-  --bg-void: #0F172A;
-  --bg-canvas: #0F172A;
-  --bg-surface: #1E293B;
-  --bg-surface-raised: #334155;
-  --bg-surface-inset: #0B1120;
 
-  /* Borders */
-  --border-subtle: #334155;
-  --border-default: #475569;
-  --border-strong: #64748B;
+:root {
+  /* Brutalism Canvas */
+  --bg-void: #F5F0E8;
+  --bg-canvas: #F5F0E8;
+  --bg-surface: #FFFFFF;
+  --bg-surface-raised: #FFFDF7;
+
+  /* Brutalism Borders - always thick and black */
+  --border-subtle: #000000;
+  --border-default: #000000;
+  --border-strong: #000000;
+  --border-width: 2px;
+  --border-width-heavy: 3px;
 
   /* Text */
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-tertiary: #64748B;
+  --text-primary: #0A0A0A;
+  --text-secondary: #3A3A3A;
+  --text-tertiary: #666666;
   --text-inverse: #FFFFFF;
 
-  /* Accent - Classic Blue */
-  --accent-glow: #3B82F6;
-  --accent-glow-secondary: #60A5FA;
-  --accent-glow-soft: rgba(59, 130, 246, 0.15);
+  /* Brutalism Accent Colors - bold, no gradients */
+  --accent-primary: #FF3B00;
+  --accent-yellow: #FFE600;
+  --accent-blue: #0047FF;
+  --accent-green: #00CC44;
+  --accent-pink: #FF007A;
 
   /* Semantic */
-  --success-fg: #10B981;
-  --success-bg: rgba(16, 185, 129, 0.15);
-  --success-border: transparent;
+  --success-fg: #00AA33;
+  --success-bg: #CCFFDD;
+  --success-border: #000000;
+  --danger-fg: #CC0000;
+  --danger-bg: #FFDDDD;
+  --danger-border: #000000;
 
-  --danger-fg: #EF4444;
-  --danger-bg: rgba(239, 68, 68, 0.15);
-  --danger-border: transparent;
-
-  /* Typography */
-  --font-display: 'Plus Jakarta Sans', sans-serif;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* Typography - brutalist: mono + grotesk */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'Space Mono', monospace;
 
   /* Spacing */
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
   --space-6: 24px; --space-8: 32px; --space-12: 48px;
 
-  /* Border Radius - SOFT and ROUNDED */
-  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+  /* Zero radius — brutalism has hard corners */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
 
-  /* Shadows, Glows & Effects */
-  --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
-  --shadow-card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-  --glow-cosmic: none;
-  --card-gradient: none;
+  /* Offset shadows — the brutalism signature */
+  --shadow-card: 4px 4px 0px #000000;
+  --shadow-card-hover: 6px 6px 0px #000000;
+  --shadow-btn: 3px 3px 0px #000000;
+  --shadow-btn-hover: 5px 5px 0px #000000;
 }
 
+/* ======================== BASE ======================== */
+* { box-sizing: border-box; }
+
 body {
-  @apply bg-darkbase text-gray-100 antialiased;
+  background-color: var(--bg-void);
+  color: var(--text-primary);
   font-family: var(--font-body);
   margin: 0;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, .font-display {
-  text-transform: none;
-  letter-spacing: -0.01em;
-  font-weight: 600;
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
-/* Animations */
-@keyframes slideUpFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-.animate-fade-in { animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.delay-100 { animation-delay: 50ms; opacity: 0; }
-.delay-200 { animation-delay: 100ms; opacity: 0; }
-
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--bg-surface-raised); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
-
-/* Card */
+/* ======================== CARDS ======================== */
 .card {
-  @apply bg-darkcard rounded-md shadow-sm border border-white/5 p-6 transition-all duration-300;
+  background: var(--bg-surface);
+  border: var(--border-width-heavy) solid #000000;
+  border-radius: 0;
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  position: relative;
 }
 .card:hover {
-  @apply border-white/10 shadow-md;
+  box-shadow: var(--shadow-card-hover);
+  transform: translate(-1px, -1px);
 }
 
-/* Buttons */
+/* ======================== INPUTS ======================== */
+.input {
+  background: #FFFFFF;
+  border: var(--border-width-heavy) solid #000000;
+  border-radius: 0;
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font: 600 14px var(--font-mono);
+  height: 46px;
+  width: 100%;
+  transition: box-shadow 0.1s ease;
+  outline: none;
+}
+.input:focus {
+  box-shadow: 3px 3px 0 #000;
+  outline: none;
+}
+.input::placeholder {
+  color: #999999;
+  font-weight: 400;
+}
+
+/* ======================== BUTTONS ======================== */
 .btn-primary {
-  background: var(--accent-glow);
-  color: var(--text-inverse);
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 10px 20px;
-  font: 600 14px var(--font-body);
-  letter-spacing: 0.01em;
+  background: #FF3B00;
+  color: #FFFFFF;
+  border: var(--border-width-heavy) solid #000000;
+  border-radius: 0;
+  padding: 10px 22px;
+  font: 700 14px var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  box-shadow: var(--shadow-btn);
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
 }
 .btn-primary:hover {
-  background: var(--accent-glow-secondary);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.23);
-  transform: translateY(-1px);
+  box-shadow: var(--shadow-btn-hover);
+  transform: translate(-1px, -1px);
+}
+.btn-primary:active {
+  box-shadow: 1px 1px 0 #000;
+  transform: translate(2px, 2px);
 }
 
 .btn-secondary {
-  background: var(--bg-surface-raised);
+  background: #FFFFFF;
   color: var(--text-primary);
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 10px 20px;
+  border: var(--border-width-heavy) solid #000000;
+  border-radius: 0;
+  padding: 10px 22px;
+  font: 700 14px var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font: 500 14px var(--font-body);
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: var(--shadow-btn);
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
 }
 .btn-secondary:hover {
-  background: var(--border-default);
+  background: #FFE600;
+  box-shadow: var(--shadow-btn-hover);
+  transform: translate(-1px, -1px);
 }
 
-/* Input */
-.input {
-  background: var(--bg-void);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 10px 16px;
-  color: var(--text-primary);
-  font: 500 14px var(--font-body);
-  height: 44px;
-  width: 100%;
-  transition: all 0.2s ease;
+/* ======================== ANIMATIONS ======================== */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.input:focus {
-  border-color: var(--accent-glow);
-  box-shadow: 0 0 0 3px var(--accent-glow-soft);
-  outline: none;
+.animate-fade-in { animation: slideUpFade 0.25s ease forwards; }
+.delay-100 { animation-delay: 50ms; opacity: 0; }
+.delay-200 { animation-delay: 100ms; opacity: 0; }
+
+/* ======================== SCROLLBARS ======================== */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #E0DAD0; border-left: 2px solid #000; }
+::-webkit-scrollbar-thumb { background: #000000; }
+::-webkit-scrollbar-thumb:hover { background: #FF3B00; }
+
+/* ======================== TABLES ======================== */
+table { border-collapse: collapse; }
+td, th {
+  border-bottom: 2px solid #000000;
+  padding: 12px 16px;
 }
-.input::placeholder { color: var(--text-secondary); font-weight: 400; }
+thead tr { background: #FFE600; }
 
-/* Tables & Lines */
-table { border-collapse: separate; border-spacing: 0; }
-tr.border-b { border-bottom: none; }
-td, th { border-bottom: 1px solid var(--border-subtle); }
-
-/* Pills */
+/* ======================== PILLS / BADGES ======================== */
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: 9999px;
-  font: 600 12px var(--font-body);
-  letter-spacing: 0.02em;
+  padding: 4px 10px;
+  border-radius: 0;
+  font: 700 11px var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid #000000;
 }
 .pill-success {
   background: var(--success-bg);
@@ -172,3 +212,8 @@ td, th { border-bottom: 1px solid var(--border-subtle); }
   background: var(--danger-bg);
   color: var(--danger-fg);
 }
+
+/* ======================== CUSTOM SCROLLBARS ======================== */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #E0DAD0; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #000; }

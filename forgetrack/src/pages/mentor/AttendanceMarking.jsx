@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Check, X, Search, Filter } from 'lucide-react';
+import { Check, X, Search, Filter, Loader2 } from 'lucide-react';
 
 export default function AttendanceMarking() {
   const [students, setStudents] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState('');
   const [search, setSearch] = useState('');
+  const [markedAttendance, setMarkedAttendance] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -23,6 +25,68 @@ export default function AttendanceMarking() {
     }
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!selectedSession) return;
+    async function loadAttendance() {
+      const { data, error } = await supabase
+        .from('attendance')
+        .select('student_id, present')
+        .eq('session_id', parseInt(selectedSession));
+      
+      if (data) {
+        const mapping = {};
+        data.forEach(row => {
+          mapping[row.student_id] = row.present;
+        });
+        setMarkedAttendance(mapping);
+      } else {
+        setMarkedAttendance({});
+      }
+    }
+    loadAttendance();
+  }, [selectedSession]);
+
+  const toggleAttendance = (studentId, present) => {
+    setMarkedAttendance(prev => ({
+      ...prev,
+      [studentId]: present
+    }));
+  };
+
+  const saveChanges = async () => {
+    if (!selectedSession) {
+      alert('Please select a session first.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = Object.entries(markedAttendance).map(([studentId, present]) => ({
+        student_id: parseInt(studentId),
+        session_id: parseInt(selectedSession),
+        present: present,
+        marked_by: 'Tharun Rai'
+      }));
+
+      if (payload.length === 0) {
+        alert('No attendance data marked yet.');
+        setSaving(false);
+        return;
+      }
+
+      const { error } = await supabase
+        .from('attendance')
+        .upsert(payload, { onConflict: 'student_id,session_id' });
+
+      if (error) throw error;
+      alert('Attendance saved successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save attendance: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -50,7 +114,14 @@ export default function AttendanceMarking() {
               ))}
             </select>
           </div>
-          <button className="btn-primary whitespace-nowrap px-6">Save Changes</button>
+          <button 
+            onClick={saveChanges}
+            disabled={saving}
+            className="btn-primary whitespace-nowrap px-6 flex items-center gap-2 justify-center"
+          >
+            {saving ? <Loader2 className="animate-spin" size={18} /> : null}
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
         </div>
       </div>
 
@@ -78,32 +149,53 @@ export default function AttendanceMarking() {
               <div className="text-text-secondary font-medium text-lg">No students match your search</div>
             </div>
           ) : (
-            filteredStudents.map((student, i) => (
-              <div key={student.id} className="flex items-center justify-between p-6 hover:bg-surface-raised/40 transition-all group animate-fade-in" style={{ animationDelay: `${i * 20}ms` }}>
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-surface-raised to-surface border border-border-subtle flex items-center justify-center font-bold text-accent-glow text-xl shadow-lg group-hover:scale-110 transition-transform">
-                    {student.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-lg font-bold text-text-primary group-hover:text-accent-glow transition-colors">{student.name}</p>
-                    <div className="flex gap-3 items-center mt-1.5">
-                      <span className="text-xs font-bold font-mono text-text-tertiary bg-surface-inset px-2.5 py-1 rounded-lg border border-border-subtle">{student.usn}</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-border-strong opacity-30"></span>
-                      <span className="text-sm text-text-secondary font-semibold">{student.branch_code}</span>
+            filteredStudents.map((student, i) => {
+              const isPresent = markedAttendance[student.id] === true;
+              const isAbsent = markedAttendance[student.id] === false;
+
+              return (
+                <div key={student.id} className="flex items-center justify-between p-6 hover:bg-surface-raised/40 transition-all group animate-fade-in" style={{ animationDelay: `${i * 20}ms` }}>
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-surface-raised to-surface border border-border-subtle flex items-center justify-center font-bold text-accent-glow text-xl shadow-lg group-hover:scale-110 transition-transform">
+                      {student.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-text-primary group-hover:text-accent-glow transition-colors">{student.name}</p>
+                      <div className="flex gap-3 items-center mt-1.5">
+                        <span className="text-xs font-bold font-mono text-text-tertiary bg-surface-inset px-2.5 py-1 rounded-lg border border-border-subtle">{student.usn}</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-border-strong opacity-30"></span>
+                        <span className="text-sm text-text-secondary font-semibold">{student.branch_code}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex gap-4">
-                  <button className="w-12 h-12 rounded-2xl border-2 border-success-border bg-success-bg text-success-fg flex items-center justify-center hover:bg-success-fg hover:text-white transition-all shadow-lg active:scale-90" title="Mark Present">
-                    <Check size={22} strokeWidth={3} />
-                  </button>
-                  <button className="w-12 h-12 rounded-2xl border-2 border-danger-border bg-danger-bg text-danger-fg flex items-center justify-center hover:bg-danger-fg hover:text-white transition-all shadow-lg active:scale-90" title="Mark Absent">
-                    <X size={22} strokeWidth={3} />
-                  </button>
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => toggleAttendance(student.id, true)}
+                      className={`w-12 h-12 rounded-2xl border-2 transition-all shadow-[2px_2px_0_#000] active:scale-90 flex items-center justify-center ${
+                        isPresent 
+                          ? 'bg-success-bg text-success-fg border-success-border font-bold' 
+                          : 'bg-white text-text-tertiary border-border-subtle hover:bg-surface-raised/50'
+                      }`}
+                      title="Mark Present"
+                    >
+                      <Check size={22} strokeWidth={isPresent ? 4 : 2} />
+                    </button>
+                    <button 
+                      onClick={() => toggleAttendance(student.id, false)}
+                      className={`w-12 h-12 rounded-2xl border-2 transition-all shadow-[2px_2px_0_#000] active:scale-90 flex items-center justify-center ${
+                        isAbsent 
+                          ? 'bg-danger-bg text-danger-fg border-danger-border font-bold' 
+                          : 'bg-white text-text-tertiary border-border-subtle hover:bg-surface-raised/50'
+                      }`}
+                      title="Mark Absent"
+                    >
+                      <X size={22} strokeWidth={isAbsent ? 4 : 2} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
