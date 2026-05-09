@@ -10,12 +10,11 @@ import Dashboard from './pages/mentor/Dashboard';
 import Attendance from './pages/mentor/AttendanceMarking';
 import History from './pages/mentor/StudentHistory';
 import Materials from './pages/mentor/Materials';
+import UploadCsv from './pages/mentor/UploadCsv';
 
-// Mock empty pages to satisfy remaining routes
-const UploadCsv = () => <div className="text-fg-primary">CSV Upload (Phase 4)</div>;
-
-const MyAttendance = () => <div className="text-fg-primary">My Attendance (Phase 5)</div>;
-const Upcoming = () => <div className="text-fg-primary">Upcoming Sessions (Phase 5)</div>;
+// Student pages
+import MyAttendance from './pages/student/MyAttendance';
+import UpcomingSessions from './pages/student/UpcomingSessions';
 
 const RootRedirect = () => {
   const role = localStorage.getItem('role');
@@ -42,7 +41,7 @@ function App() {
 
       {/* Student Routes */}
       <Route path="/me/attendance" element={<RoleGuard allowedRoles={['student']}><Shell><MyAttendance /></Shell></RoleGuard>} />
-      <Route path="/me/upcoming" element={<RoleGuard allowedRoles={['student']}><Shell><Upcoming /></Shell></RoleGuard>} />
+      <Route path="/me/upcoming" element={<RoleGuard allowedRoles={['student']}><Shell><UpcomingSessions /></Shell></RoleGuard>} />
       <Route path="/me/materials" element={<RoleGuard allowedRoles={['student']}><Shell><Materials /></Shell></RoleGuard>} />
     </Routes>
   );
